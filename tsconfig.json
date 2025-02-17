@@ -1,0 +1,60 @@
+{
+	"compilerOptions": {
+		/* Language and Environment */
+		"target": "ESNext",
+		"lib": [
+			"ES2019",
+			"ES7",
+			"ES6",
+			"DOM",
+			"DOM.Iterable",
+		],
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		
+		/* Modules */
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"baseUrl": ".",
+		"rootDir": "./src",
+		"paths": {
+			"@/*": [
+				"src/*"
+			],
+			"tests/*": ["./tests/*"]
+		},
+		"plugins": [
+            { 
+				"transform": "@zerollup/ts-transform-paths" 
+			}
+        ],
+
+		/* Emit */
+		"declaration": true,
+		"emitDeclarationOnly": true,
+		"sourceMap": true,
+		"outDir": "./dist",
+		"declarationDir": "./types",
+
+		/* Interop Constraints */
+		"isolatedModules": true,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+
+		/* Type Checking */
+		"strict": true,
+		"noImplicitAny": true,
+		"skipLibCheck": true,
+	},
+
+	"include": [
+		"src/**/*.ts",
+		"rollup.config.mjs"
+	],
+
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}

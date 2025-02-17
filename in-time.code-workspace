@@ -1,0 +1,23 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": false,
+        "eslint.format.enable": true,
+        "eslint.workingDirectories": [
+            "./"
+        ],
+        "editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "explicit",
+		},
+    },
+    "extensions": {
+        "recommendations": [
+            "dbaeumer.vscode-eslint",
+        ]
+    }
+}
