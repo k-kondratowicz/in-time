@@ -12,23 +12,29 @@ import {
 import { Formats, TDate, Unit } from '@/types';
 
 export class InTime {
-	readonly parsedDate: Date;
-	private day: number = 0;
-	private weekDay: number = 0;
-	private month: number = 0;
-	private year: number = 0;
-	private hour: number = 0;
-	private minute: number = 0;
-	private second: number = 0;
+	readonly date: Date;
+	readonly day: number = 0;
+	readonly weekDay: number = 0;
+	readonly month: number = 0;
+	readonly year: number = 0;
+	readonly hour: number = 0;
+	readonly minute: number = 0;
+	readonly second: number = 0;
 
-	constructor(readonly givenDate?: TDate) {
-		this.parsedDate = this.parse();
+	constructor(readonly givenDate?: TDate | InTime) {
+		this.date = this.parse();
 
 		if (!this.isValid) {
 			throw new Error('Invalid date');
 		}
 
-		this.setDateDetails();
+		this.day = this.date.getDate();
+		this.weekDay = this.date.getDay();
+		this.month = this.date.getMonth();
+		this.year = this.date.getFullYear();
+		this.hour = this.date.getHours();
+		this.minute = this.date.getMinutes();
+		this.second = this.date.getSeconds();
 	}
 
 	get isValid() {
@@ -36,17 +42,7 @@ export class InTime {
 	}
 
 	get timestamp() {
-		return this.parsedDate.getTime();
-	}
-
-	private setDateDetails() {
-		this.day = this.parsedDate.getDate();
-		this.weekDay = this.parsedDate.getDay();
-		this.month = this.parsedDate.getMonth();
-		this.year = this.parsedDate.getFullYear();
-		this.hour = this.parsedDate.getHours();
-		this.minute = this.parsedDate.getMinutes();
-		this.second = this.parsedDate.getSeconds();
+		return this.date.getTime();
 	}
 
 	private parse(date?: TDate) {
@@ -64,6 +60,10 @@ export class InTime {
 			return new Date(dateToParse);
 		}
 
+		if (dateToParse instanceof InTime) {
+			return new Date(dateToParse.date);
+		}
+
 		return new Date(dateToParse);
 	}
 
@@ -75,8 +75,8 @@ export class InTime {
 			MMM: MONTH_NAMES_SHORT[this.month],
 			MM: ('0' + (this.month + 1)).slice(-2),
 			M: (this.month + 1).toString(),
-			DDDD: WEEKDAYS[this.parsedDate.getDay()],
-			DDD: WEEKDAYS_SHORT[this.parsedDate.getDay()],
+			DDDD: WEEKDAYS[this.date.getDay()],
+			DDD: WEEKDAYS_SHORT[this.date.getDay()],
 			DD: ('0' + this.day).slice(-2),
 			D: this.day.toString(),
 			HH: ('0' + this.hour).slice(-2),
@@ -94,7 +94,7 @@ export class InTime {
 	}
 
 	clone() {
-		return new InTime(this.parsedDate);
+		return new InTime(this.date);
 	}
 
 	add(value: number, unit: Unit) {
@@ -103,34 +103,34 @@ export class InTime {
 
 		switch (unit) {
 			case 'year':
-				newInstance.parsedDate.setFullYear(year + value);
+				newInstance.date.setFullYear(year + value);
 				break;
 			case 'month':
-				newInstance.parsedDate.setMonth(month + value);
+				newInstance.date.setMonth(month + value);
 				break;
 			case 'day':
-				newInstance.parsedDate.setDate(day + value);
+				newInstance.date.setDate(day + value);
 				break;
 			case 'hour':
-				newInstance.parsedDate.setHours(hour + value);
+				newInstance.date.setHours(hour + value);
 				break;
 			case 'minute':
-				newInstance.parsedDate.setMinutes(minute + value);
+				newInstance.date.setMinutes(minute + value);
 				break;
 			case 'second':
-				newInstance.parsedDate.setSeconds(second + value);
+				newInstance.date.setSeconds(second + value);
 				break;
 		}
 
-		return new InTime(newInstance.parsedDate);
+		return new InTime(newInstance.date);
 	}
 
 	subtract(value: number, unit: Unit) {
 		return this.add(value * -1, unit);
 	}
 
-	isSame(other: TDate, unit?: Unit) {
-		const date = this.parse(other);
+	isSame(other: TDate | InTime, unit?: Unit) {
+		const date = this.parse(other instanceof InTime ? other.date : other);
 		const { timestamp, year, month, day, hour, minute, second } = this;
 
 		if (!unit) {
@@ -155,8 +155,8 @@ export class InTime {
 		}
 	}
 
-	isAfter(other: TDate, unit?: Unit) {
-		const date = this.parse(other);
+	isAfter(other: TDate | InTime, unit?: Unit) {
+		const date = this.parse(other instanceof InTime ? other.date : other);
 		const { timestamp, year, month, day, hour, minute, second } = this;
 
 		if (!unit) {
@@ -181,8 +181,8 @@ export class InTime {
 		}
 	}
 
-	isBefore(other: TDate, unit?: Unit) {
-		const date = this.parse(other);
+	isBefore(other: TDate | InTime, unit?: Unit) {
+		const date = this.parse(other instanceof InTime ? other.date : other);
 		const { timestamp, year, month, day, hour, minute, second } = this;
 
 		if (!unit) {
@@ -207,27 +207,27 @@ export class InTime {
 		}
 	}
 
-	isSameOrAfter(other: TDate, unit?: Unit) {
+	isSameOrAfter(other: TDate | InTime, unit?: Unit) {
 		return this.isSame(other, unit) || this.isAfter(other, unit);
 	}
 
-	isSameOrBefore(other: TDate, unit?: Unit) {
+	isSameOrBefore(other: TDate | InTime, unit?: Unit) {
 		return this.isSame(other, unit) || this.isBefore(other, unit);
 	}
 
-	isBetween(start: TDate, end: TDate, unit?: Unit) {
+	isBetween(start: TDate | InTime, end: TDate | InTime, unit?: Unit) {
 		return this.isAfter(start, unit) && this.isBefore(end, unit);
 	}
 
 	isLeapYear() {
-		const year = this.parsedDate.getFullYear();
+		const year = this.date.getFullYear();
 
 		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 	}
 
-	diff(other: TDate, unit?: Unit) {
+	diff(other: TDate | InTime, unit?: Unit) {
 		const { timestamp, year, month } = this;
-		const date = this.parse(other);
+		const date = this.parse(other instanceof InTime ? other.date : other);
 		const diff = timestamp - date.getTime();
 
 		if (!unit) {
@@ -314,5 +314,17 @@ export class InTime {
 		}
 
 		return this.instanceFactory(...newDate);
+	}
+
+	toString() {
+		return this.date.toString();
+	}
+
+	toISOString() {
+		return this.date.toISOString();
+	}
+
+	toJSON() {
+		return this.date.toJSON();
 	}
 }
