@@ -64,10 +64,6 @@ export class InTime {
 			return new Date(dateToParse);
 		}
 
-		if (!dateToParse) {
-			return new Date();
-		}
-
 		return new Date(dateToParse);
 	}
 
