@@ -3,20 +3,25 @@ import {
 	HOUR_IN_MILLISECONDS,
 	ISO_8601,
 	MINUTE_IN_MILLISECONDS,
+	MONTH_NAMES,
+	MONTH_NAMES_SHORT,
 	SECOND_IN_MILLISECONDS,
+	WEEKDAYS,
+	WEEKDAYS_SHORT,
 } from '@/constants';
 import { Formats, TDate, Unit } from '@/types';
 
 export class InTime {
 	readonly parsedDate: Date;
 	private day: number = 0;
+	private weekDay: number = 0;
 	private month: number = 0;
 	private year: number = 0;
 	private hour: number = 0;
 	private minute: number = 0;
 	private second: number = 0;
 
-	constructor(private readonly givenDate?: TDate) {
+	constructor(readonly givenDate?: TDate) {
 		this.parsedDate = this.parse();
 
 		if (!this.isValid) {
@@ -36,6 +41,7 @@ export class InTime {
 
 	private setDateDetails() {
 		this.day = this.parsedDate.getDate();
+		this.weekDay = this.parsedDate.getDay();
 		this.month = this.parsedDate.getMonth();
 		this.year = this.parsedDate.getFullYear();
 		this.hour = this.parsedDate.getHours();
@@ -68,14 +74,27 @@ export class InTime {
 	format(format: string) {
 		const formats: Formats = {
 			YYYY: this.year.toString(),
+			YY: this.year.toString().slice(-2),
+			MMMM: MONTH_NAMES[this.month],
+			MMM: MONTH_NAMES_SHORT[this.month],
 			MM: ('0' + (this.month + 1)).slice(-2),
+			M: (this.month + 1).toString(),
+			DDDD: WEEKDAYS[this.parsedDate.getDay()],
+			DDD: WEEKDAYS_SHORT[this.parsedDate.getDay()],
 			DD: ('0' + this.day).slice(-2),
+			D: this.day.toString(),
 			HH: ('0' + this.hour).slice(-2),
+			H: this.hour.toString(),
 			mm: ('0' + this.minute).slice(-2),
+			m: this.minute.toString(),
 			ss: ('0' + this.second).slice(-2),
+			s: this.second.toString(),
 		};
 
-		return format.replace(/YYYY|MM|DD|HH|mm|ss/g, matched => formats[matched as keyof Formats]);
+		return format.replace(
+			/YYYY|YY|MMMM|MMM|MM|M|DDDD|DDD|DD|D|HH|H|mm|m|ss|s/g,
+			matched => formats[matched as keyof Formats],
+		);
 	}
 
 	clone() {
