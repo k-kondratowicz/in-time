@@ -57,17 +57,103 @@ describe('InTime', () => {
 		expect(date.format('MMM DDD')).toBe('Feb Wed');
 	});
 
-	it('should compare dates correctly', () => {
+	it('should compare dates correctly with isSame', () => {
+		const date1 = new InTime('2025-02-19T12:34:56');
+		const date2 = new InTime('2025-02-19T12:34:56');
+		const date3 = new InTime('2026-03-21T13:35:57');
+
+		expect(date1.isSame(date2)).toBe(true);
+		expect(date1.isSame(date2, 'year')).toBe(true);
+		expect(date1.isSame(date2, 'month')).toBe(true);
+		expect(date1.isSame(date2, 'day')).toBe(true);
+		expect(date1.isSame(date2, 'hour')).toBe(true);
+		expect(date1.isSame(date2, 'minute')).toBe(true);
+		expect(date1.isSame(date2, 'second')).toBe(true);
+
+		expect(date1.isSame(date3)).toBe(false);
+		expect(date1.isSame(date3, 'year')).toBe(false);
+		expect(date1.isSame(date3, 'month')).toBe(false);
+		expect(date1.isSame(date3, 'day')).toBe(false);
+		expect(date1.isSame(date3, 'hour')).toBe(false);
+		expect(date1.isSame(date3, 'minute')).toBe(false);
+		expect(date1.isSame(date3, 'second')).toBe(false);
+	});
+
+	it('should compare dates correctly with isBefore', () => {
+		const date1 = new InTime('2025-02-19T12:34:56');
+		const date2 = new InTime('2025-02-19T12:34:56');
+		const date3 = new InTime('2026-03-21T13:35:57');
+
+		expect(date1.isBefore(date2)).toBe(false);
+		expect(date1.isBefore(date2, 'year')).toBe(false);
+		expect(date1.isBefore(date2, 'month')).toBe(false);
+		expect(date1.isBefore(date2, 'day')).toBe(false);
+		expect(date1.isBefore(date2, 'hour')).toBe(false);
+		expect(date1.isBefore(date2, 'minute')).toBe(false);
+		expect(date1.isBefore(date2, 'second')).toBe(false);
+
+		expect(date1.isBefore(date3)).toBe(true);
+		expect(date1.isBefore(date3, 'year')).toBe(true);
+		expect(date1.isBefore(date3, 'month')).toBe(true);
+		expect(date1.isBefore(date3, 'day')).toBe(true);
+		expect(date1.isBefore(date3, 'hour')).toBe(true);
+		expect(date1.isBefore(date3, 'minute')).toBe(true);
+		expect(date1.isBefore(date3, 'second')).toBe(true);
+	});
+
+	it('should compare dates correctly with isAfter', () => {
 		const date1 = new InTime('2025-02-19T12:34:56');
 		const date2 = new InTime('2025-02-20T12:34:56');
 
-		expect(date1.isSame(date2)).toBe(false);
-		expect(date1.isSame(date2, 'year')).toBe(true);
-		expect(date1.isSame(date2, 'month')).toBe(true);
-		expect(date1.isSame(date2, 'day')).toBe(false);
-
 		expect(date1.isAfter(date2)).toBe(false);
-		expect(date1.isBefore(date2)).toBe(true);
+		expect(date2.isAfter(date1)).toBe(true);
+		expect(date1.isAfter(date2, 'year')).toBe(false);
+	});
+
+	it('should compare dates correctly with isSameOrAfter', () => {
+		const date1 = new InTime('2025-02-19T12:34:56');
+		const date2 = new InTime('2025-02-19T12:34:56');
+		const date3 = new InTime('2025-02-20T12:34:56');
+
+		expect(date1.isSameOrAfter(date2)).toBe(true);
+		expect(date1.isSameOrAfter(date3)).toBe(false);
+		expect(date3.isSameOrAfter(date1)).toBe(true);
+	});
+
+	it('should compare dates correctly with isSameOrBefore', () => {
+		const date1 = new InTime('2025-02-19T12:34:56');
+		const date2 = new InTime('2025-02-19T12:34:56');
+		const date3 = new InTime('2025-02-20T12:34:56');
+
+		expect(date1.isSameOrBefore(date2)).toBe(true);
+		expect(date1.isSameOrBefore(date3)).toBe(true);
+		expect(date3.isSameOrBefore(date1)).toBe(false);
+	});
+
+	it('should compare dates correctly with isBetween', () => {
+		const date1 = new InTime('2025-02-19T12:34:56');
+		const date2 = new InTime('2025-02-20T12:34:56');
+		const date3 = new InTime('2025-02-21T12:34:56');
+
+		expect(date2.isBetween(date1, date3)).toBe(true);
+		expect(date1.isBetween(date2, date3)).toBe(false);
+		expect(date3.isBetween(date1, date2)).toBe(false);
+	});
+
+	it('should check leap year correctly', () => {
+		const leapYearDate = new InTime('2024-02-19T12:34:56');
+		const nonLeapYearDate = new InTime('2025-02-19T12:34:56');
+
+		expect(leapYearDate.isLeapYear).toBe(true);
+		expect(nonLeapYearDate.isLeapYear).toBe(false);
+	});
+
+	it('should check validity of date correctly', () => {
+		const validDate = new InTime('2025-02-19T12:34:56');
+
+		expect(validDate.isValid).toBe(true);
+		expect(() => new InTime('invalid-date')).toThrow(new Error('Invalid date'));
+		expect(() => new InTime('19/13/2001')).toThrow(new Error('Invalid date'));
 	});
 
 	it('should add and subtract days correctly', () => {
@@ -140,7 +226,7 @@ describe('InTime', () => {
 		const date1 = new InTime('2025-02-19T12:34:56');
 		const date2 = new InTime('2024-02-19T12:34:56');
 
-		const days = date2.isLeapYear() ? 366 : 365;
+		const days = date2.isLeapYear ? 366 : 365;
 
 		expect(date1.diff(date2, 'year')).toBe(1);
 		expect(date1.diff(date2, 'month')).toBe(12);
