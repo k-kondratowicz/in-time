@@ -45,6 +45,12 @@ export class InTime {
 		return this.date.getTime();
 	}
 
+	get isLeapYear() {
+		const year = this.date.getFullYear();
+
+		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+	}
+
 	private parse(date?: TDate) {
 		const dateToParse = date || this.givenDate;
 
@@ -217,12 +223,6 @@ export class InTime {
 
 	isBetween(start: TDate | InTime, end: TDate | InTime, unit?: Unit) {
 		return this.isAfter(start, unit) && this.isBefore(end, unit);
-	}
-
-	isLeapYear() {
-		const year = this.date.getFullYear();
-
-		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 	}
 
 	diff(other: TDate | InTime, unit?: Unit) {
